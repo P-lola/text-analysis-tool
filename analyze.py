@@ -36,6 +36,17 @@ def greetUser(name):
     print("Hello " + name + "!")
 
 
+#Get Text from File
+def getArticleText():
+    f = open("files/articles.txt", "r")
+    rawText = f.read()
+    f.close()
+    return rawText.replace("\n", " ").replace("\r", " ")
+
 welcomeUser()
 username = getUsername()
 greetUser(username)
+
+articleTextRaw = getArticleText()
+print("Got:")
+print(articleTextRaw)
