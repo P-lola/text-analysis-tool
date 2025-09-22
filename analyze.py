@@ -1,10 +1,13 @@
 from random_username.generate import generate_username
 from nltk.tokenize import word_tokenize, sent_tokenize
-import re
 import nltk
 from nltk.stem import WordNetLemmatizer
 nltk.download('wordnet')
+from nltk.corpus import wordnet
 wordLemmatizer = WordNetLemmatizer()
+from nltk.corpus import wordnet
+nltk.download('averaged_perceptron_tagger_eng')
+import re
 
 # Welcome User
 def welcomeUser():
@@ -76,15 +79,32 @@ def getWordPerSentence(sentences):
         totalWords += len(sentence.split(" "))
     return totalWords / len(sentences)
 
-#Filter raw tozenized words list to only include
-#valid english words 
-def cleanseWordList(words):
+#Convert pat of speech from pos_tag function into
+#wordnet compatible pos tag
+posToWordnetTag = {
+    "J": wordnet.ADJ,
+    "V": wordnet.VERB,
+    "N": wordnet.NOUN,
+    "R": wordnet.ADV,
+}
+
+def treebankPosTOWordnetPos(partOfSpeech):
+    posFirstChar = partOfSpeech[0]
+    if posFirstChar in posToWordnetTag:
+        return posToWordnetTag[posFirstChar]
+    return wordnet.NOUN
+
+#Convert raw liat of (words, POS) tuple to a list of strings
+#that only include valid english words 
+def cleanseWordList(posTaggedWordTuples):
     cleanseWords = []
     invalidWordPattern = "[^a-zA-Z-+]"
-    for word in words:
+    for posTaggedWordTuple in posTaggedWordTuples:
+        word = posTaggedWordTuple[0]
+        pos = posTaggedWordTuple[1]
         cleanseWord = word.replace(".", "").lower()
         if (not re.search(invalidWordPattern, cleanseWord)) and len(word) > 1:
-            cleanseWords.append(wordLemmatizer.lemmatize(cleanseWord))
+            cleanseWords.append(wordLemmatizer.lemmatize(cleanseWord, treebankPosTOWordnetPos(pos)))
     return cleanseWords
 
 # #Get User Details
@@ -103,7 +123,8 @@ keySentences = extractKeySentences(articleSentences, stockSearchPattern)
 wordsPerSentence = getWordPerSentence(articleSentences)
 
 #Get Word Analytics
-aricleWordsCleansed = cleanseWordList(articleWords)
+wordsPosTagged = nltk.pos_tag(articleWords)
+aricleWordsCleansed = cleanseWordList(wordsPosTagged)
 
 #Print for Test
 print("Got:")
