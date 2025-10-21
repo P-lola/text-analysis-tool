@@ -1,5 +1,7 @@
 import yfinance as yf
 from datetime import datetime
+import requests
+from bs4 import BeautifulSoup
 
 def extractBasicInfo(data):
   keysToExtract = ['longName','sector', 'website', 'fullTimeEmployees', 'marketCap', 'totalRevenue', 'trailingEPS']
@@ -39,6 +41,21 @@ def getCompanyNews(company):
     allNewsArticles.append(newsDictToAdd)
   return allNewsArticles
 
+headers = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36'
+}
+
+def extractCompanyNewsArticles(newsArticles):
+  for newsArticle in newsArticles:
+    url = newsArticle['link']
+    page = requests.get(url, headers=headers)
+    soup = BeautifulSoup(page.text, 'html.parser')
+    print(url)
+    if soup.find_all(string="Continue reading"):
+      print('Tag found - should skip')
+    else:
+      print("Tag not found, don't skip")
+
 def getCompanyStockInfo(tickerSymbol):
   #GEt data from Yahoo Finance API
   company = yf.Ticker(tickerSymbol)
@@ -48,6 +65,7 @@ def getCompanyStockInfo(tickerSymbol):
   priceHistory = getPriceHistory(company)
   futureEarningsDates = getEarningsDates(company)
   newsArticles = getCompanyNews(company)
+  extractCompanyNewsArticles(newsArticles)
 
 
 getCompanyStockInfo('MSFT')
