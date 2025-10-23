@@ -6,8 +6,14 @@ app = Flask(__name__)
 app.debug = True
 
 @app.route('/health')
-def index():
+def healthCheck():
     return "Flask server is up and running"
+
+
+@app.route('/analyze-stock')
+def analyzeStock():
+    return {"data" : "Analysis Coming Soon"}
+
 
 if __name__ == '__main__':
     app.run()
