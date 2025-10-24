@@ -10,9 +10,9 @@ def healthCheck():
     return "Flask server is up and running"
 
 
-@app.route('/analyze-stock')
-def analyzeStock():
-    return {"data" : "Analysis Coming Soon"}
+@app.route('/analyze-stock/<ticker>')
+def analyzeStock(ticker):
+    return {"data" : "Analysis for " + ticker + " Coming Soon"}
 
 
 if __name__ == '__main__':
