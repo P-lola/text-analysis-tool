@@ -99,5 +99,5 @@ def getCompanyStockInfo(tickerSymbol):
   return finalStockAnalysis
 
 
-# companySTockAnalysis = getCompanyStockInfo('MSFT')
-# print(json.dumps(companySTockAnalysis, indent=4))
+companySTockAnalysis = getCompanyStockInfo('MSFT')
+print(json.dumps(companySTockAnalysis, indent=4))
