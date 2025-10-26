@@ -1,4 +1,5 @@
 from flask import Flask, render_template, abort
+from stockAnalyze import getCompanyStockInfo
 
 app = Flask(__name__)
 
@@ -14,8 +15,8 @@ def healthCheck():
 def analyzeStock(ticker):
     if len(ticker) > 5 or not ticker.isidentifier():
         abort(400, "Invalid ticker symbol")
-    return {"data" : "Analysis for " + ticker + " Coming Soon"}
-
+    analysis = getCompanyStockInfo(ticker)
+    return analysis
 
 if __name__ == '__main__':
     app.run()
