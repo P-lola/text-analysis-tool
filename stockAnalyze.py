@@ -44,11 +44,17 @@ def getCompanyNews(company):
   return allNewsArticles
 
 def extractNewsArticleTextFromHtml(soup):
-  allText = ""
-  result =(soup.find_all("div", {"class":"body yf-h0on0w"}) + soup.find_all("article", {"id": "article-main-content", "class": "flex flex-col"}))
-  for res in result:
-    allText += res.text
-  return allText
+    selectors = [
+        ("div", {"class": "body yf-h0on0w"}),
+        ("article", {}),
+        ("div", {"class": "article__content"}),
+        ("p", {})  # fallback: collect all paragraphs
+    ]
+    allText = ""
+    for tag, attrs in selectors:
+        for element in soup.find_all(tag, attrs):
+            allText += element.get_text(separator=" ", strip=True) + " "
+    return allText.strip()
 
 
 headers = {
@@ -56,17 +62,20 @@ headers = {
 }
 
 def extractCompanyNewsArticles(newsArticles):
-  allArticleText = ""
-  for newsArticle in newsArticles:
-    url = newsArticle['link']
-    page = requests.get(url, headers=headers)
-    soup = BeautifulSoup(page.text, 'html.parser')
-    if soup.find_all(string="Continue Reading"):
-      print('Tag found - should skip')
-    else:
-      print("Tag not found, don't skip")
-      allArticleText = extractNewsArticleTextFromHtml(soup)
-    return allArticleText
+    allArticleText = ""
+    for newsArticle in newsArticles:
+        url = newsArticle['link']
+        page = requests.get(url, headers=headers)
+        soup = BeautifulSoup(page.text, 'html.parser')
+
+        if soup.find_all(string="Continue Reading"):
+            print('Tag found - should skip')
+            continue
+        else:
+            print("Tag not found, don't skip")
+            allArticleText += extractNewsArticleTextFromHtml(soup)  # use +=
+
+    return allArticleText  # moved outside loop
 
 def getCompanyStockInfo(tickerSymbol):
   #GEt data from Yahoo Finance API
@@ -90,5 +99,5 @@ def getCompanyStockInfo(tickerSymbol):
   return finalStockAnalysis
 
 
-companySTockAnalysis = getCompanyStockInfo('MSFT')
-print(json.dumps(companySTockAnalysis, indent=4))
+# companySTockAnalysis = getCompanyStockInfo('MSFT')
+# print(json.dumps(companySTockAnalysis, indent=4))

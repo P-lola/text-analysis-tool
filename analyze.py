@@ -81,7 +81,10 @@ def getWordPerSentence(sentences):
     totalWords = 0
     for sentence in sentences:
         totalWords += len(sentence.split(" "))
-    return totalWords / len(sentences)
+    if len(sentences) != 0:
+        return totalWords / len(sentences)
+    else:
+        print("There were no sentences found")
 
 #Convert pat of speech from pos_tag function into
 #wordnet compatible pos tag
