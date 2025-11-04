@@ -29,7 +29,7 @@ def analyzeTextHandler():
     data = request.get_json()
     if "text" not in data or not data["text"]:
         abort(400, "No text provided to analyse")
-    analysis = analyzeText("")
+    analysis = analyzeText(data["text"])
     return analysis
 
 if __name__ == '__main__':
