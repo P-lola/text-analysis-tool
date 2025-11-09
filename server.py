@@ -1,8 +1,11 @@
 from flask import Flask, render_template, abort, request
+from flask_cors import CORS
 from stockAnalyze import getCompanyStockInfo
 from analyze import analyzeText
 
 app = Flask(__name__)
+CORS(app)
+
 
 # Debug setting set to true
 app.debug = True
