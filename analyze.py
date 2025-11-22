@@ -12,6 +12,8 @@ nltk.download('vader_lexicon')
 wordLemmatizer = WordNetLemmatizer()
 stopWords = set(stopwords.words('english'))
 sentimentAnalyzer = SentimentIntensityAnalyzer()
+import base64
+from io import BytesIO
 
 # Welcome User
 def welcomeUser():
@@ -132,7 +134,10 @@ def analyzeText(textToAnalyze):
     wordCloudFilePath = "results/wordcloud.png"
     wordcloud = WordCloud(width = 1000, height = 700, background_color="white", colormap="tab20b",
                         collocations=False).generate(separator.join(articleWordsCleansed))
-    wordcloud.to_file(wordCloudFilePath)
+    imgBuffer = BytesIO()
+    wordcloud.to_image().save(imgBuffer, format='PNG')
+    imgBuffer.seek(0)
+    encodedWordcloud = base64.b64encode(imgBuffer.read()).decode('utf-8')
 
     #Run Sentiment Analysis
     sentimentResult = sentimentAnalyzer.polarity_scores(textToAnalyze)
@@ -144,7 +149,8 @@ def analyzeText(textToAnalyze):
             "keySentences": keySentences,
             "wordsPerSentence": round(wordsPerSentence, 1),
             "sentiment": sentimentResult,
-            "wordCloudFilePath": wordCloudFilePath
+            "wordCloudFilePath": wordCloudFilePath,
+            "wordCloudImage": encodedWordcloud,
         },
         "metadata": {
             "sentencesAnalyzed": len(articleSentences),
