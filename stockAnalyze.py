@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 import analyze
 
 def extractBasicInfo(data):
-  keysToExtract = ['longName','sector', 'website', 'fullTimeEmployees', 'marketCap', 'totalRevenue', 'trailingEPS']
+  keysToExtract = ['longName','sector', 'website', 'fullTimeEmployees', 'marketCap', 'totalRevenue', 'trailingEps']
   basicInfo = {}
   for key in keysToExtract:
     if key in data:
