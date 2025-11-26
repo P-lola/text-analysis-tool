@@ -28,7 +28,8 @@ def analyzeStock(ticker):
         analysis = getCompanyStockInfo(ticker)
     except NameError as e:
         abort(404, e)
-    except:
+    except Exception as e:
+        print(f"Something went wrong running the stock analysis: {e}")
         abort(500, "Something went wrong running the stock analysis")
     return analysis
 
