@@ -25,6 +25,7 @@ def getPriceHistory(company):
   }
 
 def getEarningsDates(company):
+  return []
   earningDatesDF = company.earnings_dates
   allDates = earningDatesDF.index.strftime('%Y-%m-%d').tolist()
   date_objects = [datetime.strptime(d, '%Y-%m-%d') for d in allDates]
@@ -58,24 +59,49 @@ def extractNewsArticleTextFromHtml(soup):
 
 
 headers = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.5',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1'
 }
 
 def extractCompanyNewsArticles(newsArticles):
-    allArticleText = ""
-    for newsArticle in newsArticles:
-        url = newsArticle['link']
-        page = requests.get(url, headers=headers)
-        soup = BeautifulSoup(page.text, 'html.parser')
+  allArticleText = ""
+  
+  for newsArticle in newsArticles:
+      url = newsArticle['link']
+      
+      try:
+          page = requests.get(url, headers=headers)
+          page.raise_for_status()  # Raise exception for bad status codes
+          
+          soup = BeautifulSoup(page.text, 'html.parser')
 
-        if soup.find_all(string="Continue Reading"):
-            print('Tag found - should skip')
-            continue
-        else:
-            print("Tag not found, don't skip")
-            allArticleText += extractNewsArticleTextFromHtml(soup)  # use +=
+          if soup.find_all(string="Continue Reading"):
+              print(f'Skipping article (paywall)')
+              continue
+          else:
+              print(f"Processing article")
+              articleText = extractNewsArticleTextFromHtml(soup)
+              if articleText:
+                  allArticleText += articleText + " "
+                  
+      except requests.exceptions.Timeout:
+          print(f"Timeout fetching article: {url}")
+          continue
+      except requests.exceptions.ConnectionError:
+          print(f"Connection error for article: {url}")
+          continue
+      except requests.exceptions.HTTPError as e:
+          print(f"HTTP error {e.response.status_code} for article: {url}")
+          continue
+      except Exception as e:
+          print(f"Unexpected error fetching article {url}: {e}")
+          continue
 
-    return allArticleText  # moved outside loop
+  return allArticleText.strip()
 
 def getCompanyStockInfo(tickerSymbol):
   #GEt data from Yahoo Finance API
