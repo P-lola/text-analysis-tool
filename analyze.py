@@ -1,19 +1,26 @@
-from random_username.generate import generate_username
+import os
 import re, nltk, json
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet, stopwords
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from wordcloud import WordCloud
-nltk.download('stopwords')
-nltk.download('wordnet')
-nltk.download('averaged_perceptron_tagger_eng')
-nltk.download('vader_lexicon')
+import base64
+from io import BytesIO
+
+LOCAL_NLTK_PATH = os.path.join(os.path.dirname(__file__), "nltk_data")
+nltk.data.path.append(LOCAL_NLTK_PATH)
+
+# Required downloads (will now use local folder)
+nltk.download('stopwords', download_dir=LOCAL_NLTK_PATH)
+nltk.download('wordnet', download_dir=LOCAL_NLTK_PATH)
+nltk.download('averaged_perceptron_tagger_eng', download_dir=LOCAL_NLTK_PATH)
+nltk.download('vader_lexicon', download_dir=LOCAL_NLTK_PATH)
+
 wordLemmatizer = WordNetLemmatizer()
 stopWords = set(stopwords.words('english'))
 sentimentAnalyzer = SentimentIntensityAnalyzer()
-import base64
-from io import BytesIO
+
 
 # Welcome User
 def welcomeUser():
